@@ -10,6 +10,9 @@ namespace paths
 	//Path to the master folder
 	extern const std::string g_master = "Master/";
 
+	//Path to the settings folder
+	extern const std::string g_settings = "Settings/";
+
 	//Path to the output folder
 	extern const std::string g_output = "Output/";
 

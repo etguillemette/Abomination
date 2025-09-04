@@ -18,6 +18,8 @@
 #include <iostream>
 #include <filesystem>
 #include "OpenXLSX/OpenXLSX.hpp"
+#include <fstream>
+#include <cstdio>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -182,6 +184,92 @@ int main()
 	Logger console;
 	console.log("Abomination script start -------------");
 
+	std::string outputPathPath = paths::g_settings + "outputpath.txt";
+
+	//writeFile("blah", settingsDoc, false);
+
+	std::ifstream outputPathFile(outputPathPath);
+
+	std::string outputFolderPath = "";
+
+
+	if (std::filesystem::exists(outputPathPath)) {
+		//outputpath.txt file exists
+		std::cout << "outputpath.txt file exists\n";
+
+		std::string pathChange = "";
+
+		std::cout << "Would you like to change the export directory? [Y]/[N]\n";
+
+		std::cin >> pathChange;
+
+		if (pathChange == "Y" || pathChange == "y") {
+			std::cout << "What is the file path you'd like to export documents to?\n";
+			std::string userInput;
+			std::cin >> userInput;
+			writeFile(userInput, outputPathPath, false);
+		}
+
+		outputPathFile.open(outputPathPath);
+		if (!outputPathFile.is_open()) {
+			std::cerr << "Error opening file!\n" << std::endl;
+			return 1;
+		}
+
+		std::string line;
+		while (std::getline(outputPathFile, line)) {
+			outputFolderPath = line;
+		}
+		outputPathFile.close();
+	}
+	else {
+		//outputpath.txt file doesn't exist. Need to create one
+		std::cout << "outputpath.txt file doesn't exist. What is the file path you'd like to export documents to?\n";
+		std::string userInput;
+		std::cin >> userInput;
+		writeFile(userInput, outputPathPath, false);
+	}
+
+	while (outputFolderPath == "") {
+
+		//Establishes the file path for the output folder we've puleld from the outputpath.txt doc
+		std::cout << "Output folder path is blank\n";
+
+		outputPathFile.open(outputPathPath);
+		if (!outputPathFile.is_open()) {
+			std::cout << "OutputPathFile is open\n";
+			std::cerr << "Error opening file!\n" << std::endl;
+			return 1;
+		}
+
+		std::string line;
+		while (std::getline(outputPathFile, line)) {
+			outputFolderPath = line;
+		}
+		outputPathFile.close();
+
+
+
+		if (std::filesystem::exists(outputFolderPath) && outputFolderPath != "") {
+			std::cout << "Output Folder Exists\n";
+			//Output folder exists. Proceeding as normal
+			std::cout << "Output folder found at: " << outputFolderPath << "\n";
+
+			std::filesystem::create_directories(outputFolderPath + "output\\");
+			std::filesystem::create_directories(outputFolderPath + "input\\");
+
+		}
+		else {
+				std::cout << "Folder doesn't exist. Please specify another path\n";
+				std::cout << "What is the file path you'd like to export documents to?\n";
+				std::string userInput;
+				std::cin >> userInput;
+				writeFile(userInput, outputPathPath, false);
+		}
+	}
+
+
+
 	//The user-selected document that we will be pulling code from
 	XLDocument input;
 
@@ -205,10 +293,10 @@ int main()
 		std::cout << "What is the name of the file you would like to import? (don't include file extension)\n \n";
 		std::cin >> filename;
 
-		std::cout << "Filepath is " << paths::g_documents + "input\\" + filename + ".xlsx" << "\n";
+		std::cout << "Filepath is " << outputFolderPath + "input\\" + filename + ".xlsx" << "\n";
 
 		//Attempts to open the file
-		input.open(paths::g_documents + "input\\" + filename + ".xlsx");
+		input.open(outputFolderPath + "input\\" + filename + ".xlsx");
 
 		//Checks if the file is valid
 		if (input)
@@ -268,7 +356,7 @@ int main()
 		std::string sCurrentFileName = vImportQueue[iQueue];
 		XLDocument xImport;
 
-		xImport.open(paths::g_documents + "input\\" + sCurrentFileName + ".xlsx");
+		xImport.open(outputFolderPath + "input\\" + sCurrentFileName + ".xlsx");
 
 		console.log("Opening file " + sCurrentFileName + "\n");
 
@@ -276,7 +364,7 @@ int main()
 		std::vector<std::string> worksheetNames = xImport.workbook().worksheetNames();
 
 		//Creates a folder structure for the Excel document we're working with
-		std::filesystem::create_directories(paths::g_documents + "output\\" + sCurrentFileName);
+		std::filesystem::create_directories(outputFolderPath + "output\\" + sCurrentFileName);
 
 
 		std::vector<std::string> vClassList;
@@ -485,28 +573,26 @@ int main()
 							"\t" + "}" + "\n";
 					}
 					if (functionType == "UniqueMap"){
+						funcStr+=	
 							"\t" + static_cast<std::string>("//Returns the object reference by the <#INDEXVALUE> <#INDEXVALUETYPE> key") + "\n" +
 							"\t" + "<#SUBVALUE>* get<#UPSUBVALUE>RefBy<#UPINDEXVALUE>(<#INDEXVALUETYPE> <#INDEXVALUE>) {" + "\n" +
 							"\t" + "\t" + "if(<#PROPERTY>.count(<#INDEXVALUE>)) {" + "\n" +
-							"\t" + "\t" + "\t" + "return &<#PROPERTY>[<#INDEXVALUE>];" + "\n" +
+							"\t" + "\t" + "\t" + "return <#PROPERTY>[<#INDEXVALUE>];" + "\n" +
 							"\t" + "\t" + "}" + "\n" +
 							"\t" + "\t" + "else {" + "\n" +
 							"\t" + "\t" + "\t" + "return nullptr;" + "\n" +
 							"\t" + "\t" + "}" + "\n" +
 							"\t" + "}" + "\n" +
 							"\t" + "//Returns the <#PROPERTY> object" + "\n" +
-							"\t" + "std::map<<#INDEXVALUETYPE>, <#SUBVALUE>>* get<#UPVALUENAME>() {" + "\n" +
+							"\t" + "<#OUTPUTTYPE>* get<#UPVALUENAME>() {" + "\n" +
 							"\t" + "\t" + "return &<#PROPERTY>;" + "\n" +
 							"\t" + "}" + "\n" +
-							"\t" + "<#OUTPUTTYPE> get<#UPVALUENAME>() {" + "\n" +
-							"\t" + "\t" + "return <#PROPERTY>;" + "\n" +
-							"\t" + "}" +
 							"\t" + "void add<#UPSUBVALUE>To<#UPVALUENAME>(loop* <#UPSUBVALUE>) {" + "\n" +
-							"\t" + "\t" + "<#INDEXVALUETYPE> <#INDEXVALUE> = <#SUBVALUE>->getId();" + "\n" +
+							"\t" + "\t" + "<#INDEXVALUETYPE> <#INDEXVALUE> = <#UPSUBVALUE>->getId();" + "\n" +
 							"\t" + "\t" + "if (<#PROPERTY>.count(<#INDEXVALUE>)) {" + "\n" +
 							"\t" + "\t" + "}" + "\n" +
 							"\t" + "\t" + "else {" + "\n" +
-							"\t" + "\t" + "\t" + "<#PROPERTY>.insert({ <#INDEXVALUE>, <#SUBVALUE> });" + "\n" +
+							"\t" + "\t" + "\t" + "<#PROPERTY>.insert({ <#INDEXVALUE>, <#UPSUBVALUE> });" + "\n" +
 							"\t" + "\t" + "}" + "\n" +
 							"\t" + "}";
 					}
@@ -756,7 +842,7 @@ int main()
 				exportStr += "#endif";
 
 				//Path to the header export file
-				std::string headerPath = paths::g_documents + "output\\" + sCurrentFileName + "/" + tabName + ".h";
+				std::string headerPath = outputFolderPath + "output\\" + sCurrentFileName + "/" + tabName + ".h";
 				writeFile(exportStr, headerPath, false);
 
 			}
