@@ -17,11 +17,7 @@
 #include <limits>
 #include <iostream>
 #include <filesystem>
-
-#include "OpenXLSX.hpp"
-#include "XLDocument.hpp"
-#include "XLCell.hpp"
-#include "XLWorksheet.hpp"
+#include "OpenXLSX/OpenXLSX.hpp"
 
 using namespace std;
 using namespace OpenXLSX;
