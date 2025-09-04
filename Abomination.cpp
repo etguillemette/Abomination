@@ -1,4 +1,4 @@
-﻿// Abomination.cpp : Defines the entry point for the application.
+// Abomination.cpp : Defines the entry point for the application.
 //
 
 #include "Abomination.h"
@@ -16,8 +16,12 @@
 #include <stdexcept>
 #include <limits>
 #include <iostream>
-#include <OpenXLSX.hpp>
 #include <filesystem>
+
+#include "OpenXLSX.hpp"
+#include "XLDocument.hpp"
+#include "XLCell.hpp"
+#include "XLWorksheet.hpp"
 
 using namespace std;
 using namespace OpenXLSX;
@@ -483,6 +487,32 @@ int main()
 							"\t" + "std::map<<#INDEXVALUETYPE>, <#SUBVALUE>>* get<#UPVALUENAME>() {" + "\n" +
 							"\t" + "\t" + "return &<#PROPERTY>;" + "\n" +
 							"\t" + "}" + "\n";
+					}
+					if (functionType == "UniqueMap"){
+							"\t" + static_cast<std::string>("//Returns the object reference by the <#INDEXVALUE> <#INDEXVALUETYPE> key") + "\n" +
+							"\t" + "<#SUBVALUE>* get<#UPSUBVALUE>RefBy<#UPINDEXVALUE>(<#INDEXVALUETYPE> <#INDEXVALUE>) {" + "\n" +
+							"\t" + "\t" + "if(<#PROPERTY>.count(<#INDEXVALUE>)) {" + "\n" +
+							"\t" + "\t" + "\t" + "return &<#PROPERTY>[<#INDEXVALUE>];" + "\n" +
+							"\t" + "\t" + "}" + "\n" +
+							"\t" + "\t" + "else {" + "\n" +
+							"\t" + "\t" + "\t" + "return nullptr;" + "\n" +
+							"\t" + "\t" + "}" + "\n" +
+							"\t" + "}" + "\n" +
+							"\t" + "//Returns the <#PROPERTY> object" + "\n" +
+							"\t" + "std::map<<#INDEXVALUETYPE>, <#SUBVALUE>>* get<#UPVALUENAME>() {" + "\n" +
+							"\t" + "\t" + "return &<#PROPERTY>;" + "\n" +
+							"\t" + "}" + "\n" +
+							"\t" + "<#OUTPUTTYPE> get<#UPVALUENAME>() {" + "\n" +
+							"\t" + "\t" + "return <#PROPERTY>;" + "\n" +
+							"\t" + "}" +
+							"\t" + "void add<#UPSUBVALUE>To<#UPVALUENAME>(loop* <#UPSUBVALUE>) {" + "\n" +
+							"\t" + "\t" + "<#INDEXVALUETYPE> <#INDEXVALUE> = <#SUBVALUE>->getId();" + "\n" +
+							"\t" + "\t" + "if (<#PROPERTY>.count(<#INDEXVALUE>)) {" + "\n" +
+							"\t" + "\t" + "}" + "\n" +
+							"\t" + "\t" + "else {" + "\n" +
+							"\t" + "\t" + "\t" + "<#PROPERTY>.insert({ <#INDEXVALUE>, <#SUBVALUE> });" + "\n" +
+							"\t" + "\t" + "}" + "\n" +
+							"\t" + "}";
 					}
 					if (functionType == "Vector") {
 						funcStr +=
