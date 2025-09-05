@@ -572,6 +572,28 @@ int main()
 							"\t" + "\t" + "return &<#PROPERTY>;" + "\n" +
 							"\t" + "}" + "\n";
 					}
+					if (functionType == "StringMap") {
+						funcStr +=
+							"\t" + static_cast<std::string>("//Returns the object reference by the <#INDEXVALUE> <#INDEXVALUETYPE> key") + "\n" +
+							"\t" + "<#SUBVALUE>* get<#UPSUBVALUE>RefBy<#UPINDEXVALUE>(<#INDEXVALUETYPE> <#INDEXVALUE>) {" + "\n" +
+							"\t" + "\t" + "if(<#PROPERTY>.count(<#INDEXVALUE>)) {" + "\n" +
+							"\t" + "\t" + "\t" + "return &<#PROPERTY>[<#INDEXVALUE>];" + "\n" +
+							"\t" + "\t" + "}" + "\n" +
+							"\t" + "\t" + "else {" + "\n" +
+							"\t" + "\t" + "\t" + "return nullptr;" + "\n" +
+							"\t" + "\t" + "}" + "\n" +
+							"\t" + "}" + "\n" +
+							"\t" + "//Adds <#SUBVALUE> to the <#PROPERTY>" + "\n" +
+							"\t" + "void add<#UPSUBVALUE>To<#UPCLASSNAME>(<#SUBVALUE> <#UPSUBVALUE>) {" + "\n" +
+							"\t" + "\t" + "<#INDEXVALUETYPE> <#INDEXVALUE> = <#UPSUBVALUE>.get<#UPINDEXVALUE>();" + "\n" +
+							"\t" + "\t" + "<#UPSUBVALUE>.set<#UPINDEXVALUE>(static_cast<<#INDEXVALUETYPE>>(<#INDEXVALUE>));" + "\n" +
+							"\t" + "\t" + "<#PROPERTY>.insert({<#INDEXVALUE>, <#UPSUBVALUE>});\t" + "}" + "\n" +
+							"\n" +
+							"\t" + "//Returns the <#PROPERTY> object" + "\n" +
+							"\t" + "std::map<<#INDEXVALUETYPE>, <#SUBVALUE>>* get<#UPVALUENAME>() {" + "\n" +
+							"\t" + "\t" + "return &<#PROPERTY>;" + "\n" +
+							"\t" + "}" + "\n";
+					}
 					if (functionType == "UniqueMap"){
 						funcStr+=	
 							"\t" + static_cast<std::string>("//Returns the object reference by the <#INDEXVALUE> <#INDEXVALUETYPE> key") + "\n" +
@@ -587,7 +609,8 @@ int main()
 							"\t" + "<#OUTPUTTYPE>* get<#UPVALUENAME>() {" + "\n" +
 							"\t" + "\t" + "return &<#PROPERTY>;" + "\n" +
 							"\t" + "}" + "\n" +
-							"\t" + "void add<#UPSUBVALUE>To<#UPVALUENAME>(loop* <#UPSUBVALUE>) {" + "\n" +
+							"\t" + "//Adds the <#SUBVALUE> to the <#UPVALUENAME> library" + "\n" +
+							"\t" + "void add<#UPSUBVALUE>To<#UPVALUENAME>(<#SUBVALUE>* <#UPSUBVALUE>) {" + "\n" +
 							"\t" + "\t" + "<#INDEXVALUETYPE> <#INDEXVALUE> = <#UPSUBVALUE>->getId();" + "\n" +
 							"\t" + "\t" + "if (<#PROPERTY>.count(<#INDEXVALUE>)) {" + "\n" +
 							"\t" + "\t" + "}" + "\n" +
